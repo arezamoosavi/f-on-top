@@ -18,8 +18,8 @@ except Exception as e:
     logging.warning(f"There is a problem in connecting to database. \n{e}")
 
 
-class User(Document):
-    _id = fields.StringField(primary_key=True)
+class Auth(Document):
+    key = fields.StringField()
     first_name = fields.StringField()
     last_name = fields.StringField()
     phone = fields.IntField()

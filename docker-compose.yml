@@ -27,7 +27,7 @@ services:
     expose:
       - "27017"
     volumes:
-      - local_mongo_data:/var/lib/mongodb/data/
+      - mongo_data:/var/lib/mongodb/data/
     restart: unless-stopped
 
   kafka:

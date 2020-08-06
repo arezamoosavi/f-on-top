@@ -1,10 +1,11 @@
 import logging
 import os
+import faust
+
 from datetime import datetime
 from distutils.util import strtobool
-from logging.config import dictConfig
-from faust_app import producer
-import faust
+from database.models import Auth
+
 
 KAFKA_BOOTSTRAP_SERVER = os.getenv("KAFKA_BOOTSTRAP_SERVER")
 STORE_URI = os.getenv("STORE_URI")
@@ -15,26 +16,8 @@ TOPIC_NAME = os.getenv("KAFKA_TOPIC")
 
 SSL_ENABLED = False
 SSL_CONTEXT = None
-
-LOGGING = dictConfig(
-    {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "formatters": {
-            "default": {"format": "%(asctime)s %(levelname)s %(name)s %(message)s"}
-        },
-        "handlers": {
-            "console": {
-                "level": "DEBUG",
-                "class": "logging.StreamHandler",
-                "formatter": "default",
-            }
-        },
-        "loggers": {"transactions": {"handlers": ["console"], "level": "DEBUG"}},
-    }
-)
-
 DEBUG = strtobool(os.getenv("DEBUG", "no"))
+
 app = faust.App(
     id="sample_app",
     debug=DEBUG,
@@ -42,7 +25,6 @@ app = faust.App(
     origin="faust_app",
     broker=KAFKA_BOOTSTRAP_SERVER,
     store=STORE_URI,
-    logging_config=LOGGING,
     topic_allow_declare=TOPIC_ALLOW_DECLARE,
     topic_disable_leader=TOPIC_DISABLE_LEADER,
     broker_credentials=SSL_CONTEXT,
@@ -57,21 +39,33 @@ logging.basicConfig(
     format="[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
 )
 
-
-async def is_exist_already(data: dict):
-    pass
+auth_field = ["key", "first_name", "last_name", "phone"]
 
 
 async def save_to_mongo(data: dict):
-    pass
+
+    if auth_field == data.keys():
+        u = Auth(
+            key=data["key"],
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            phone=data["phone"],
+        )
+        u.save()
+        logging.info(f"saved to mongo:\n{data}\n")
+    else:
+        logging.info(f"Some issue with data fields \n{data}\n")
 
 
 @app.agent(_topic)
 async def raw_data_processor(stream):
     async for record in stream:
-        check_result = await is_exist_already(record)
-        logging.info(f"check data: \n{record}\n")
-        if check_result:
-            await save_to_mongo(record)
-            logging.info(f"saved to mongo:\n{record}\n")
+        if "key" in record.keys() and record["key"]:
+            u = Auth.objects(key=str(record["key"]))
+            if u:
+                logging.info(f"{u} is used already!")
+            else:
+                await save_to_mongo(record)
+        else:
+            logging.info(f"key field is necessary")
 
