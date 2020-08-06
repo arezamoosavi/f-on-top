@@ -22,7 +22,7 @@ class Auth(Document):
     key = fields.StringField()
     first_name = fields.StringField()
     last_name = fields.StringField()
-    phone = fields.IntField()
+    phone = fields.StringField()
 
     meta = {"db_alias": "defaultdb"}
 

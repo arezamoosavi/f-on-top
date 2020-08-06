@@ -11,10 +11,8 @@ class Mongo:
         self.username = os.getenv("MONGODB_USERNAME")
         self.password = os.getenv("MONGODB_PASSWORD")
 
-    def connect(self):
+    def connect(self) -> None:
         connect(
-            "default",
-            alias="defaultdb",
             db=self.dbname,
             username=self.username,
             password=self.password,

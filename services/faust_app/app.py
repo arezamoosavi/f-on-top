@@ -39,17 +39,17 @@ logging.basicConfig(
     format="[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s",
 )
 
-auth_field = ["key", "first_name", "last_name", "phone"]
-
 
 async def save_to_mongo(data: dict):
+    # params:
+    auth_field = ["key", "first_name", "last_name", "phone"]
 
     if auth_field == data.keys():
         u = Auth(
-            key=data["key"],
-            first_name=data["first_name"],
-            last_name=data["last_name"],
-            phone=data["phone"],
+            key=str(data["key"]),
+            first_name=str(data["first_name"]),
+            last_name=str(data["last_name"]),
+            phone=str(data["phone"]),
         )
         u.save()
         logging.info(f"saved to mongo:\n{data}\n")
@@ -58,7 +58,7 @@ async def save_to_mongo(data: dict):
 
 
 @app.agent(_topic)
-async def raw_data_processor(stream):
+async def auth_data_processor(stream):
     async for record in stream:
         if "key" in record.keys() and record["key"]:
             u = Auth.objects(key=str(record["key"]))
@@ -68,4 +68,5 @@ async def raw_data_processor(stream):
                 await save_to_mongo(record)
         else:
             logging.info(f"key field is necessary")
+        yield " yeah :> "
 
