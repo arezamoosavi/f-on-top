@@ -1,0 +1,21 @@
+
+# Testing
+# ------------------------------------------------------------------------------
+pytest
+pytest_cases
+pytest-cookies
+pytest-asyncio
+pytest-cov
+pytest-datafiles
+pytest-django
+mongomock
+
+# Mongo
+# ------------------------------------------------------------------------------
+pymongo==3.10.1
+mongoengine==0.20.0
+
+# Stream Processing
+# ------------------------------------------------------------------------------
+faust
+faust[uvloop,fast,rocksdb,redis]
