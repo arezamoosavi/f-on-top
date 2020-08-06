@@ -4,7 +4,8 @@ from unittest.mock import Mock, patch
 
 from datetime import datetime
 
-from mongoengine import connect, disconnect
+from mongoengine.connection import connect
+from mongoengine import disconnect
 from faust_app import app as f_app
 
 

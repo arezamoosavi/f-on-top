@@ -19,5 +19,4 @@ echo ". . . . . Faust App Is RUNNING! . . . . ."
 
 faust -A faust_app.app:app worker -l info -p 6066
 
-
 exec "$@"
